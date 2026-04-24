@@ -48,7 +48,7 @@ export async function GET(req: Request) {
 
   try {
     const [sleep, readiness, activity] = await Promise.all([
-      fetchOuraData('daily_sleep', token, queryDate),
+      fetchOuraData('sleep', token, queryDate),
       fetchOuraData('daily_readiness', token, queryDate),
       fetchOuraData('daily_activity', token, queryDate)
     ]);
