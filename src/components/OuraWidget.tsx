@@ -22,21 +22,33 @@ export default function OuraWidget() {
   if (error) return <div className="p-4 bg-red-900 rounded-lg text-red-200">Error: {error}</div>;
   if (!data) return null;
 
+  // Oura API returns sleep in seconds. Total hours = total_sleep_duration / 3600
+  const sleepDuration = data.sleep?.total_sleep_duration || 0;
+  const totalHours = sleepDuration ? (sleepDuration / 3600).toFixed(1) : 'N/A';
+
+  const viewGraph = (metric: string) => {
+    alert(`Viewing historical graph for: ${metric}\n(Graph UI mocked for MVP)`);
+  };
+
   return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700">
       <h2 className="text-xl font-bold mb-4 text-purple-400">Oura Ring Stats</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gray-700 p-4 rounded-md">
-          <h3 className="text-sm text-gray-400 uppercase">Sleep Score</h3>
-          <p className="text-3xl font-bold text-white">{data.sleep?.score || 'N/A'}</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-gray-700 p-4 rounded-md cursor-pointer hover:bg-gray-600 transition-colors" onClick={() => viewGraph('Sleep Score')}>
+          <h3 className="text-xs text-gray-400 uppercase">Sleep Score</h3>
+          <p className="text-2xl font-bold text-white">{data.sleep?.score || 'N/A'}</p>
         </div>
-        <div className="bg-gray-700 p-4 rounded-md">
-          <h3 className="text-sm text-gray-400 uppercase">Readiness</h3>
-          <p className="text-3xl font-bold text-white">{data.readiness?.score || 'N/A'}</p>
+        <div className="bg-gray-700 p-4 rounded-md cursor-pointer hover:bg-gray-600 transition-colors" onClick={() => viewGraph('Total Sleep (Hrs)')}>
+          <h3 className="text-xs text-gray-400 uppercase">Total Sleep (hrs)</h3>
+          <p className="text-2xl font-bold text-white">{totalHours}</p>
         </div>
-        <div className="bg-gray-700 p-4 rounded-md">
-          <h3 className="text-sm text-gray-400 uppercase">Activity</h3>
-          <p className="text-3xl font-bold text-white">{data.activity?.score || 'N/A'}</p>
+        <div className="bg-gray-700 p-4 rounded-md cursor-pointer hover:bg-gray-600 transition-colors" onClick={() => viewGraph('Readiness')}>
+          <h3 className="text-xs text-gray-400 uppercase">Readiness</h3>
+          <p className="text-2xl font-bold text-white">{data.readiness?.score || 'N/A'}</p>
+        </div>
+        <div className="bg-gray-700 p-4 rounded-md cursor-pointer hover:bg-gray-600 transition-colors" onClick={() => viewGraph('Activity')}>
+          <h3 className="text-xs text-gray-400 uppercase">Activity</h3>
+          <p className="text-2xl font-bold text-white">{data.activity?.score || 'N/A'}</p>
         </div>
       </div>
     </div>
