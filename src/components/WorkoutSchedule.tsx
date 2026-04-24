@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from 'react';
 
-const VERSION = '1.4'; // incremented to force update with new schema
+const VERSION = '1.5'; // incremented to force update with new schema
 const defaultData = {
   version: VERSION,
   workout: {
     exercises: [
-      { id: 1, name: 'Monday', title: 'Weight Training (Upper Body Push)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Bench press, overhead press, triceps dips, push-ups. 3 sets of 8-10 reps each.', done: false },
-      { id: 2, name: 'Tuesday', title: 'VO2 Max + Zone 2', goal: 'Cardio Fitness', duration: '45 min', description: 'Warm-up 10 min. 4 x 4-minute high-intensity intervals on bike or treadmil with 3-minute recovery. 30-40 min zone 2.', done: false },
-      { id: 3, name: 'Wednesday', title: 'Weight Training (Lower Body)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Squats, deadlifts, lunges, calf raises. 3 sets of 8-10 reps each.', done: false },
-      { id: 4, name: 'Thursday', title: 'Fat Burn Cardio (Zone 2)', goal: 'Endurance & Recovery', duration: '45-60 min', description: '45-minute steady state cycling or brisk walking keeping heart rate in Zone 2.', done: false },
-      { id: 5, name: 'Friday', title: 'Weight Training (Upper Body Pull)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Pull-ups or lat pull-downs, barbell rows, bicep curls. 3 sets of 8-10 reps each.', done: false },
-      { id: 6, name: 'Saturday', title: 'VO2 Max + Zone 2', goal: 'Cardio Fitness', duration: '45 min', description: 'Warm-up 10 min. 4 x 4-minute high-intensity intervals on bike or treadmil with 3-minute recovery. 30-40 min zone 2.', done: false },
-      { id: 7, name: 'Sunday', title: 'Rest or Active Recovery', goal: 'Recovery', duration: 'Flexible', description: '30-minute walk, yoga session, or full body stretching to aid recovery.', done: false }
+      { id: 1, name: 'Monday', title: 'Weight Training (Upper Body Push)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Bench press, overhead press, triceps dips, push-ups. 3 sets of 8-10 reps each.', exerciseList: ["Bench press", "Overhead press", "Triceps dips", "Push-ups"], done: false },
+      { id: 2, name: 'Tuesday', title: 'VO2 Max + Zone 2', goal: 'Cardio Fitness', duration: '45 min', description: 'Warm-up 10 min. 4 x 4-minute high-intensity intervals on bike or treadmil with 3-minute recovery. 30-40 min zone 2.', exerciseList: ["HIIT bike intervals", "Zone 2 cardio"], done: false },
+      { id: 3, name: 'Wednesday', title: 'Weight Training (Lower Body)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Squats, deadlifts, lunges, calf raises. 3 sets of 8-10 reps each.', exerciseList: ["Squats", "Deadlifts", "Lunges", "Calf raises"], done: false },
+      { id: 4, name: 'Thursday', title: 'Fat Burn Cardio (Zone 2)', goal: 'Endurance & Recovery', duration: '45-60 min', description: '45-minute steady state cycling or brisk walking keeping heart rate in Zone 2.', exerciseList: ["Steady state cycling", "Brisk walking"], done: false },
+      { id: 5, name: 'Friday', title: 'Weight Training (Upper Body Pull)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Pull-ups or lat pull-downs, barbell rows, bicep curls. 3 sets of 8-10 reps each.', exerciseList: ["Pull-ups", "Lat pull-downs", "Barbell rows", "Bicep curls"], done: false },
+      { id: 6, name: 'Saturday', title: 'VO2 Max + Zone 2', goal: 'Cardio Fitness', duration: '45 min', description: 'Warm-up 10 min. 4 x 4-minute high-intensity intervals on bike or treadmil with 3-minute recovery. 30-40 min zone 2.', exerciseList: ["HIIT bike intervals", "Zone 2 cardio"], done: false },
+      { id: 7, name: 'Sunday', title: 'Rest or Active Recovery', goal: 'Recovery', duration: 'Flexible', description: '30-minute walk, yoga session, or full body stretching to aid recovery.', exerciseList: ["Yoga", "Full body stretching"], done: false }
     ],
     supplements: [
       { id: 1, name: 'Morning: Omeprazole, Probiotic', taken: false },
@@ -112,16 +112,23 @@ export default function WorkoutSchedule() {
               </div>
               <div className="mb-4 bg-gray-900/50 p-4 rounded-lg border border-gray-600/50">
                 <span className="text-gray-400 block uppercase tracking-wider text-xs font-semibold mb-2">Description / Exercises</span>
-                <p className="text-white text-lg font-medium whitespace-pre-wrap leading-relaxed">{todayWorkout.description}</p>
+                <p className="text-white text-lg font-medium whitespace-pre-wrap leading-relaxed mb-4">{todayWorkout.description}</p>
+                {todayWorkout.exerciseList && todayWorkout.exerciseList.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {todayWorkout.exerciseList.map((exercise: string, idx: number) => (
+                      <button
+                        key={idx}
+                        onClick={() => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(exercise)}`, '_blank')}
+                        className="bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-gray-500 text-gray-200 text-sm font-medium py-1.5 px-3 rounded-full flex items-center transition-colors"
+                      >
+                        <PlayIcon /> {exercise}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                <button 
-                  onClick={() => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(todayWorkout.description)}`, '_blank')}
-                  className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-colors"
-                >
-                  <PlayIcon /> See tutorials
-                </button>
                 <button 
                   onClick={() => toggleExercise(todayWorkout.id)}
                   className={`flex-1 font-bold py-3 px-4 rounded-lg transition-colors text-white ${todayWorkout.done ? 'bg-gray-600 hover:bg-gray-500' : 'bg-green-600 hover:bg-green-500'}`}
