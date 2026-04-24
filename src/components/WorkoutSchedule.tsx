@@ -2,34 +2,74 @@
 
 import { useEffect, useState } from 'react';
 
+const defaultData = {
+  workout: {
+    exercises: [
+      { id: 1, name: 'Bench Press', details: '3 sets of 10 reps', done: false },
+      { id: 2, name: 'Squats', details: '4 sets of 8 reps', done: false }
+    ],
+    supplements: [
+      { id: 1, name: 'Creatine', taken: false },
+      { id: 2, name: 'Whey Protein', taken: false },
+      { id: 3, name: 'Fish Oil', taken: false }
+    ],
+    healthCheck: '2026-10-01',
+    watchOuts: ['High cholesterol risk', 'Keep an eye on left knee']
+  }
+};
+
 export default function WorkoutSchedule() {
   const [data, setData] = useState<any>(null);
   const [editingEx, setEditingEx] = useState<number | null>(null);
   const [editDetails, setEditDetails] = useState('');
 
   useEffect(() => {
-    fetch('/api/data').then(res => res.json()).then(setData);
+    const saved = localStorage.getItem('gusup_workout_data');
+    if (saved) {
+      setData(JSON.parse(saved));
+    } else {
+      setData(defaultData);
+      localStorage.setItem('gusup_workout_data', JSON.stringify(defaultData));
+    }
   }, []);
 
-  const toggleExercise = async (id: number) => {
-    const res = await fetch('/api/data', { method: 'POST', body: JSON.stringify({ type: 'TOGGLE_EXERCISE', id }) });
-    setData(await res.json());
+  const updateData = (newData: any) => {
+    setData(newData);
+    localStorage.setItem('gusup_workout_data', JSON.stringify(newData));
   };
 
-  const toggleSupplement = async (id: number) => {
-    const res = await fetch('/api/data', { method: 'POST', body: JSON.stringify({ type: 'TOGGLE_SUPPLEMENT', id }) });
-    setData(await res.json());
+  const toggleExercise = (id: number) => {
+    const newData = { ...data };
+    const ex = newData.workout.exercises.find((e: any) => e.id === id);
+    if (ex) {
+      ex.done = !ex.done;
+      updateData(newData);
+    }
   };
 
-  const saveEdit = async (id: number) => {
-    const res = await fetch('/api/data', { method: 'POST', body: JSON.stringify({ type: 'EDIT_EXERCISE', id, details: editDetails }) });
-    setData(await res.json());
-    setEditingEx(null);
+  const toggleSupplement = (id: number) => {
+    const newData = { ...data };
+    const sup = newData.workout.supplements.find((s: any) => s.id === id);
+    if (sup) {
+      sup.taken = !sup.taken;
+      updateData(newData);
+    }
   };
 
-  const setHealthCheck = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const res = await fetch('/api/data', { method: 'POST', body: JSON.stringify({ type: 'SET_HEALTH_CHECK', date: e.target.value }) });
-    setData(await res.json());
+  const saveEdit = (id: number) => {
+    const newData = { ...data };
+    const ex = newData.workout.exercises.find((e: any) => e.id === id);
+    if (ex) {
+      ex.details = editDetails;
+      updateData(newData);
+      setEditingEx(null);
+    }
+  };
+
+  const setHealthCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newData = { ...data };
+    newData.workout.healthCheck = e.target.value;
+    updateData(newData);
   };
 
   const viewGraph = (metric: string) => {
