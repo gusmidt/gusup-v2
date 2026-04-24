@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 
+const VERSION = '1.1';
 const defaultData = {
+  version: VERSION,
   workout: {
     exercises: [
       { id: 1, name: 'Monday', details: 'Weight Training (Upper Body Push)', done: false },
@@ -32,7 +34,13 @@ export default function WorkoutSchedule() {
   useEffect(() => {
     const saved = localStorage.getItem('gusup_workout_data');
     if (saved) {
-      setData(JSON.parse(saved));
+      const parsed = JSON.parse(saved);
+      if (parsed.version === VERSION) {
+        setData(parsed);
+      } else {
+        setData(defaultData);
+        localStorage.setItem('gusup_workout_data', JSON.stringify(defaultData));
+      }
     } else {
       setData(defaultData);
       localStorage.setItem('gusup_workout_data', JSON.stringify(defaultData));
