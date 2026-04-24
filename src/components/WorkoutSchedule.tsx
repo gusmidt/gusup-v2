@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from 'react';
 
-const VERSION = '1.3'; // incremented to force update with new schema
+const VERSION = '1.4'; // incremented to force update with new schema
 const defaultData = {
   version: VERSION,
   workout: {
     exercises: [
-      { id: 1, name: 'Monday', title: 'Weight Training (Upper Body Push)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Focus on chest, shoulders, and triceps.', done: false },
-      { id: 2, name: 'Tuesday', title: 'VO2 Max + Zone 2', goal: 'Cardio Fitness', duration: '45 min', description: 'Run or Bike. Intervals followed by steady state.', done: false },
-      { id: 3, name: 'Wednesday', title: 'Weight Training (Lower Body)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Focus on quads, hamstrings, and calves.', done: false },
-      { id: 4, name: 'Thursday', title: 'Fat Burn Cardio (Zone 2)', goal: 'Endurance & Recovery', duration: '45-60 min', description: 'Steady state cardio in Zone 2.', done: false },
-      { id: 5, name: 'Friday', title: 'Weight Training (Upper Body Pull)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Focus on back and biceps.', done: false },
-      { id: 6, name: 'Saturday', title: 'VO2 Max + Zone 2', goal: 'Cardio Fitness', duration: '45 min', description: 'Run or Bike. Intervals followed by steady state.', done: false },
-      { id: 7, name: 'Sunday', title: 'Rest or Active Recovery', goal: 'Recovery', duration: 'Flexible', description: 'Light walking, stretching, or complete rest.', done: false }
+      { id: 1, name: 'Monday', title: 'Weight Training (Upper Body Push)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Bench press, overhead press, triceps dips, push-ups. 3 sets of 8-10 reps each.', done: false },
+      { id: 2, name: 'Tuesday', title: 'VO2 Max + Zone 2', goal: 'Cardio Fitness', duration: '45 min', description: 'Warm-up 10 min. 4 x 4-minute high-intensity intervals on bike or treadmil with 3-minute recovery. 30-40 min zone 2.', done: false },
+      { id: 3, name: 'Wednesday', title: 'Weight Training (Lower Body)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Squats, deadlifts, lunges, calf raises. 3 sets of 8-10 reps each.', done: false },
+      { id: 4, name: 'Thursday', title: 'Fat Burn Cardio (Zone 2)', goal: 'Endurance & Recovery', duration: '45-60 min', description: '45-minute steady state cycling or brisk walking keeping heart rate in Zone 2.', done: false },
+      { id: 5, name: 'Friday', title: 'Weight Training (Upper Body Pull)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Pull-ups or lat pull-downs, barbell rows, bicep curls. 3 sets of 8-10 reps each.', done: false },
+      { id: 6, name: 'Saturday', title: 'VO2 Max + Zone 2', goal: 'Cardio Fitness', duration: '45 min', description: 'Warm-up 10 min. 4 x 4-minute high-intensity intervals on bike or treadmil with 3-minute recovery. 30-40 min zone 2.', done: false },
+      { id: 7, name: 'Sunday', title: 'Rest or Active Recovery', goal: 'Recovery', duration: 'Flexible', description: '30-minute walk, yoga session, or full body stretching to aid recovery.', done: false }
     ],
     supplements: [
       { id: 1, name: 'Morning: Omeprazole, Probiotic', taken: false },
