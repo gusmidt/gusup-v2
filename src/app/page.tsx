@@ -12,14 +12,13 @@ export default function Home() {
         <p className="mt-4 text-gray-400">Personal Health & Performance Dashboard</p>
       </header>
 
+      <div className="mb-8">
+        <WorkoutSchedule />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="space-y-8">
-          <OuraWidget />
-          <MealMacros />
-        </div>
-        <div>
-          <WorkoutSchedule />
-        </div>
+        <OuraWidget />
+        <MealMacros />
       </div>
     </main>
   );

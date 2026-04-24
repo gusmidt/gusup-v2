@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-const VERSION = '1.2'; // incremented to force update with new schema
+const VERSION = '1.3'; // incremented to force update with new schema
 const defaultData = {
   version: VERSION,
   workout: {
@@ -110,13 +110,16 @@ export default function WorkoutSchedule() {
                   <span className="text-white">{todayWorkout.duration}</span>
                 </div>
               </div>
-              <div className="mb-4">
-                <span className="text-gray-400 block uppercase tracking-wider text-xs font-semibold mb-1">Description</span>
-                <p className="text-gray-200">{todayWorkout.description}</p>
+              <div className="mb-4 bg-gray-900/50 p-4 rounded-lg border border-gray-600/50">
+                <span className="text-gray-400 block uppercase tracking-wider text-xs font-semibold mb-2">Description / Exercises</span>
+                <p className="text-white text-lg font-medium whitespace-pre-wrap leading-relaxed">{todayWorkout.description}</p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                <button className="flex-1 bg-gray-600 hover:bg-gray-500 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                <button 
+                  onClick={() => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(todayWorkout.description)}`, '_blank')}
+                  className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-colors"
+                >
                   <PlayIcon /> See tutorials
                 </button>
                 <button 
