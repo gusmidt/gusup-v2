@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from 'react';
 
-const VERSION = '1.1';
+const VERSION = '1.2'; // incremented to force update with new schema
 const defaultData = {
   version: VERSION,
   workout: {
     exercises: [
-      { id: 1, name: 'Monday', details: 'Weight Training (Upper Body Push)', done: false },
-      { id: 2, name: 'Tuesday', details: 'VO2 Max + Zone 2 (Run/Bike)', done: false },
-      { id: 3, name: 'Wednesday', details: 'Weight Training (Lower Body)', done: false },
-      { id: 4, name: 'Thursday', details: 'Fat Burn Cardio (Zone 2)', done: false },
-      { id: 5, name: 'Friday', details: 'Weight Training (Upper Body Pull)', done: false },
-      { id: 6, name: 'Saturday', details: 'VO2 Max + Zone 2 (Run/Bike)', done: false },
-      { id: 7, name: 'Sunday', details: 'Rest or Active Recovery', done: false }
+      { id: 1, name: 'Monday', title: 'Weight Training (Upper Body Push)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Focus on chest, shoulders, and triceps.', done: false },
+      { id: 2, name: 'Tuesday', title: 'VO2 Max + Zone 2', goal: 'Cardio Fitness', duration: '45 min', description: 'Run or Bike. Intervals followed by steady state.', done: false },
+      { id: 3, name: 'Wednesday', title: 'Weight Training (Lower Body)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Focus on quads, hamstrings, and calves.', done: false },
+      { id: 4, name: 'Thursday', title: 'Fat Burn Cardio (Zone 2)', goal: 'Endurance & Recovery', duration: '45-60 min', description: 'Steady state cardio in Zone 2.', done: false },
+      { id: 5, name: 'Friday', title: 'Weight Training (Upper Body Pull)', goal: 'Muscle Growth', duration: '45-60 min', description: 'Focus on back and biceps.', done: false },
+      { id: 6, name: 'Saturday', title: 'VO2 Max + Zone 2', goal: 'Cardio Fitness', duration: '45 min', description: 'Run or Bike. Intervals followed by steady state.', done: false },
+      { id: 7, name: 'Sunday', title: 'Rest or Active Recovery', goal: 'Recovery', duration: 'Flexible', description: 'Light walking, stretching, or complete rest.', done: false }
     ],
     supplements: [
       { id: 1, name: 'Morning: Omeprazole, Probiotic', taken: false },
@@ -26,12 +26,22 @@ const defaultData = {
   }
 };
 
+const PlayIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 inline-block mr-1">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z" />
+  </svg>
+);
+
 export default function WorkoutSchedule() {
   const [data, setData] = useState<any>(null);
-  const [editingEx, setEditingEx] = useState<number | null>(null);
-  const [editDetails, setEditDetails] = useState('');
+  const [showFullWeek, setShowFullWeek] = useState(false);
+  const [todayName, setTodayName] = useState('');
 
   useEffect(() => {
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    setTodayName(dayNames[new Date().getDay()]);
+
     const saved = localStorage.getItem('gusup_workout_data');
     if (saved) {
       const parsed = JSON.parse(saved);
@@ -70,57 +80,87 @@ export default function WorkoutSchedule() {
     }
   };
 
-  const saveEdit = (id: number) => {
-    const newData = { ...data };
-    const ex = newData.workout.exercises.find((e: any) => e.id === id);
-    if (ex) {
-      ex.details = editDetails;
-      updateData(newData);
-      setEditingEx(null);
-    }
-  };
-
   const setHealthCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newData = { ...data };
     newData.workout.healthCheck = e.target.value;
     updateData(newData);
   };
 
-  const viewGraph = (metric: string) => {
-    alert(`Viewing historical graph for: ${metric}\n(Graph UI mocked for MVP)`);
-  };
+  if (!data) return <div className="p-4 bg-gray-800 rounded animate-pulse text-white">Loading daily data...</div>;
 
-  if (!data) return <div className="p-4 bg-gray-800 rounded animate-pulse">Loading daily data...</div>;
+  const todayWorkout = data.workout.exercises.find((ex: any) => ex.name === todayName);
 
   return (
     <div className="space-y-6">
-      {/* Daily Workout View */}
+      {/* Today's Workout View */}
       <div className="bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700">
-        <h2 className="text-xl font-bold mb-4 text-blue-400">Daily Workout</h2>
-        <ul className="space-y-3">
-          {data.workout.exercises.map((ex: any) => (
-            <li key={ex.id} className="p-3 bg-gray-700 rounded-md">
-              <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleExercise(ex.id)}>
-                <div className="flex items-center gap-3">
-                  <input type="checkbox" checked={ex.done} readOnly className="w-5 h-5" />
-                  <span className={`font-semibold ${ex.done ? 'line-through text-gray-500' : 'text-white'}`}>{ex.name}</span>
+        <h2 className="text-2xl font-bold mb-4 text-blue-400">Today's Workout: {todayName}</h2>
+        
+        {todayWorkout ? (
+          <div className="space-y-4">
+            <div className="bg-gray-700 p-5 rounded-lg border border-gray-600">
+              <h3 className="text-xl font-bold text-white mb-2">{todayWorkout.title}</h3>
+              <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                <div>
+                  <span className="text-gray-400 block uppercase tracking-wider text-xs font-semibold">Goal</span>
+                  <span className="text-white">{todayWorkout.goal}</span>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={(e) => { e.stopPropagation(); viewGraph(ex.name); }} className="text-sm text-green-400 hover:underline">Stats</button>
-                  <button onClick={(e) => { e.stopPropagation(); setEditingEx(ex.id); setEditDetails(ex.details); }} className="text-sm text-yellow-400 hover:underline">Edit</button>
+                <div>
+                  <span className="text-gray-400 block uppercase tracking-wider text-xs font-semibold">Duration</span>
+                  <span className="text-white">{todayWorkout.duration}</span>
                 </div>
               </div>
-              {editingEx === ex.id ? (
-                <div className="mt-2 flex gap-2">
-                  <input value={editDetails} onChange={e => setEditDetails(e.target.value)} className="bg-gray-900 text-white px-2 py-1 rounded w-full" onClick={e => e.stopPropagation()} />
-                  <button onClick={(e) => { e.stopPropagation(); saveEdit(ex.id); }} className="bg-blue-600 px-3 py-1 rounded">Save</button>
+              <div className="mb-4">
+                <span className="text-gray-400 block uppercase tracking-wider text-xs font-semibold mb-1">Description</span>
+                <p className="text-gray-200">{todayWorkout.description}</p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                <button className="flex-1 bg-gray-600 hover:bg-gray-500 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                  <PlayIcon /> See tutorials
+                </button>
+                <button 
+                  onClick={() => toggleExercise(todayWorkout.id)}
+                  className={`flex-1 font-bold py-3 px-4 rounded-lg transition-colors text-white ${todayWorkout.done ? 'bg-gray-600 hover:bg-gray-500' : 'bg-green-600 hover:bg-green-500'}`}
+                >
+                  {todayWorkout.done ? '✓ Completed' : 'Mark Workout Complete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-400">No workout scheduled for today.</p>
+        )}
+
+        <div className="mt-6">
+          <button 
+            onClick={() => setShowFullWeek(!showFullWeek)}
+            className="w-full text-center text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+          >
+            {showFullWeek ? 'Hide This Week\'s Schedule' : 'View This Week\'s Schedule'}
+          </button>
+          
+          {showFullWeek && (
+            <div className="mt-4 space-y-3">
+              {data.workout.exercises.map((ex: any) => (
+                <div key={ex.id} className={`p-4 rounded-lg border ${ex.name === todayName ? 'bg-gray-700 border-blue-500' : 'bg-gray-800 border-gray-600'}`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-bold text-white">{ex.name}: {ex.title}</h4>
+                      <p className="text-sm text-gray-400">{ex.duration} • {ex.goal}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {ex.done && <span className="text-green-400 text-sm font-bold">✓ Done</span>}
+                      {ex.name !== todayName && (
+                        <input type="checkbox" checked={ex.done} onChange={() => toggleExercise(ex.id)} className="w-5 h-5 rounded cursor-pointer" />
+                      )}
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <p className="text-sm text-gray-400 mt-1 pl-8 cursor-pointer" onClick={() => alert(ex.details)}>{ex.details}</p>
-              )}
-            </li>
-          ))}
-        </ul>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Daily Supplements View */}
