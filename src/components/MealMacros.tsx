@@ -8,7 +8,8 @@ const goals = { protein: 180, carbs: 200, fat: 70 }; // arbitrary goals for the 
 export default function MealMacros() {
   const [macros, setMacros] = useState(defaultMacros);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [inputVals, setInputVals] = useState({ protein: '', carbs: '', fat: '' });
+  const [mealInput, setMealInput] = useState('');
+  const [isGuessing, setIsGuessing] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('gusup_meal_macros');
@@ -24,20 +25,36 @@ export default function MealMacros() {
     localStorage.setItem('gusup_meal_macros', JSON.stringify(newMacros));
   };
 
-  const handleLogMeal = () => {
-    const p = parseInt(inputVals.protein) || 0;
-    const c = parseInt(inputVals.carbs) || 0;
-    const f = parseInt(inputVals.fat) || 0;
+  const handleLogMeal = async () => {
+    if (!mealInput.trim()) return;
+    setIsGuessing(true);
 
-    const newMacros = {
-      protein: macros.protein + p,
-      carbs: macros.carbs + c,
-      fat: macros.fat + f
-    };
+    try {
+      const res = await fetch('/api/guess-macros', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ meal: mealInput })
+      });
 
-    updateMacros(newMacros);
-    setIsModalOpen(false);
-    setInputVals({ protein: '', carbs: '', fat: '' });
+      if (!res.ok) throw new Error('Failed to guess macros');
+
+      const estimated = await res.json();
+
+      const newMacros = {
+        protein: macros.protein + (estimated.protein || 0),
+        carbs: macros.carbs + (estimated.carbs || 0),
+        fat: macros.fat + (estimated.fat || 0)
+      };
+
+      updateMacros(newMacros);
+      setIsModalOpen(false);
+      setMealInput('');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to estimate macros. Please try again.');
+    } finally {
+      setIsGuessing(false);
+    }
   };
 
   return (
@@ -82,21 +99,23 @@ export default function MealMacros() {
             <h3 className="text-lg font-bold text-white mb-4">Log Meal Macros</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-gray-400 text-sm">Protein (g)</label>
-                <input type="number" value={inputVals.protein} onChange={e => setInputVals({...inputVals, protein: e.target.value})} className="w-full bg-gray-700 text-white rounded p-2" />
-              </div>
-              <div>
-                <label className="block text-gray-400 text-sm">Carbs (g)</label>
-                <input type="number" value={inputVals.carbs} onChange={e => setInputVals({...inputVals, carbs: e.target.value})} className="w-full bg-gray-700 text-white rounded p-2" />
-              </div>
-              <div>
-                <label className="block text-gray-400 text-sm">Fat (g)</label>
-                <input type="number" value={inputVals.fat} onChange={e => setInputVals({...inputVals, fat: e.target.value})} className="w-full bg-gray-700 text-white rounded p-2" />
+                <label className="block text-gray-400 text-sm mb-1">What did you eat?</label>
+                <textarea
+                  value={mealInput}
+                  onChange={e => setMealInput(e.target.value)}
+                  placeholder="e.g., 2 eggs and a slice of toast"
+                  className="w-full bg-gray-700 text-white rounded p-2 min-h-[100px]"
+                  disabled={isGuessing}
+                />
               </div>
             </div>
             <div className="mt-4 flex gap-2">
-              <button onClick={handleLogMeal} className="bg-green-500 text-white px-4 py-2 rounded flex-1">Save</button>
-              <button onClick={() => setIsModalOpen(false)} className="bg-gray-600 text-white px-4 py-2 rounded flex-1">Cancel</button>
+              <button onClick={handleLogMeal} disabled={isGuessing} className="bg-green-500 text-white px-4 py-2 rounded flex-1 disabled:opacity-50">
+                {isGuessing ? 'Estimating...' : 'Save'}
+              </button>
+              <button onClick={() => { setIsModalOpen(false); setMealInput(''); }} disabled={isGuessing} className="bg-gray-600 text-white px-4 py-2 rounded flex-1">
+                Cancel
+              </button>
             </div>
           </div>
         </div>

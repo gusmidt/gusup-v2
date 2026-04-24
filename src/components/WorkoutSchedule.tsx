@@ -5,13 +5,19 @@ import { useEffect, useState } from 'react';
 const defaultData = {
   workout: {
     exercises: [
-      { id: 1, name: 'Bench Press', details: '3 sets of 10 reps', done: false },
-      { id: 2, name: 'Squats', details: '4 sets of 8 reps', done: false }
+      { id: 1, name: 'Monday', details: 'Weight Training (Upper Body Push)', done: false },
+      { id: 2, name: 'Tuesday', details: 'VO2 Max + Zone 2 (Run/Bike)', done: false },
+      { id: 3, name: 'Wednesday', details: 'Weight Training (Lower Body)', done: false },
+      { id: 4, name: 'Thursday', details: 'Fat Burn Cardio (Zone 2)', done: false },
+      { id: 5, name: 'Friday', details: 'Weight Training (Upper Body Pull)', done: false },
+      { id: 6, name: 'Saturday', details: 'VO2 Max + Zone 2 (Run/Bike)', done: false },
+      { id: 7, name: 'Sunday', details: 'Rest or Active Recovery', done: false }
     ],
     supplements: [
-      { id: 1, name: 'Creatine', taken: false },
-      { id: 2, name: 'Whey Protein', taken: false },
-      { id: 3, name: 'Fish Oil', taken: false }
+      { id: 1, name: 'Morning: Omeprazole, Probiotic', taken: false },
+      { id: 2, name: 'Breakfast: Omega-3, Propecia, Creatine', taken: false },
+      { id: 3, name: 'Lunch/Dinner: Vitamin D3, Permixon, Sulforaphane', taken: false },
+      { id: 4, name: 'Bed: Magnesium Glycinate', taken: false }
     ],
     healthCheck: '2026-10-01',
     watchOuts: ['High cholesterol risk', 'Keep an eye on left knee']
