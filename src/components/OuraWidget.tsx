@@ -10,6 +10,17 @@ export default function OuraWidget() {
     return new Date().toISOString().split('T')[0];
   });
 
+  // Generate the last 14 days
+  const dateOptions = Array.from({ length: 14 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (13 - i));
+    const isToday = i === 13;
+    const dateString = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const label = isToday ? 'Today' : `${days[d.getDay()]} ${d.getDate()}`;
+    return { dateString, label };
+  });
+
   useEffect(() => {
     setLoading(true);
     fetch(`/api/oura?date=${selectedDate}`)
@@ -28,14 +39,23 @@ export default function OuraWidget() {
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-purple-400">Oura Ring Stats</h2>
-        <input 
-          type="date" 
-          value={selectedDate} 
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="bg-gray-900 text-white px-2 py-1 rounded text-sm"
-        />
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
+        <h2 className="text-xl font-bold text-purple-400 shrink-0">Oura Ring Stats</h2>
+        <div className="flex overflow-x-auto space-x-2 pb-2 w-full md:w-auto scrollbar-hide">
+          {dateOptions.map((opt) => (
+            <button
+              key={opt.dateString}
+              onClick={() => setSelectedDate(opt.dateString)}
+              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                selectedDate === opt.dateString
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-900 text-gray-400 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
