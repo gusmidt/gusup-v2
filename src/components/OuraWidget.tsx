@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import OuraSleepChart from './OuraSleepChart';
+import OuraStepsChart from './OuraStepsChart';
 
 export default function OuraWidget() {
   const [data, setData] = useState<any>(null);
@@ -91,6 +92,7 @@ export default function OuraWidget() {
       )}
 
       <OuraSleepChart />
+      <OuraStepsChart />
     </div>
   );
 }
