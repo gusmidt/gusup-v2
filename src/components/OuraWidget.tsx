@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import OuraSleepChart from './OuraSleepChart';
 
 export default function OuraWidget() {
   const [data, setData] = useState<any>(null);
@@ -88,6 +89,8 @@ export default function OuraWidget() {
           </div>
         </div>
       )}
+
+      <OuraSleepChart />
     </div>
   );
 }
