@@ -10,11 +10,13 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const days = parseInt(searchParams.get('days') || '30', 10);
+  const type = searchParams.get('type') || 'sleep';
 
   const endDate = new Date().toISOString().split('T')[0];
   const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-  const url = new URL(`${OURA_API_BASE}/sleep`);
+  const endpoint = type === 'activity' ? 'daily_activity' : 'sleep';
+  const url = new URL(`${OURA_API_BASE}/${endpoint}`);
   url.searchParams.append('start_date', startDate);
   url.searchParams.append('end_date', endDate);
 
@@ -27,7 +29,7 @@ export async function GET(req: Request) {
     });
 
     if (!res.ok) {
-      throw new Error(`Oura API error on sleep: ${res.status} ${res.statusText}`);
+      throw new Error(`Oura API error on ${endpoint}: ${res.status} ${res.statusText}`);
     }
 
     const json = await res.json();
