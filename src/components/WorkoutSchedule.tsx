@@ -37,10 +37,17 @@ export default function WorkoutSchedule() {
   const [data, setData] = useState<any>(null);
   const [showFullWeek, setShowFullWeek] = useState(false);
   const [todayName, setTodayName] = useState('');
+  const [history, setHistory] = useState<any[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [customExercise, setCustomExercise] = useState('');
+  const [showExerciseLog, setShowExerciseLog] = useState(false);
 
   useEffect(() => {
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     setTodayName(dayNames[new Date().getDay()]);
+
+    const savedHistory = localStorage.getItem('gusup_exercise_history');
+    if (savedHistory) setHistory(JSON.parse(savedHistory));
 
     const saved = localStorage.getItem('gusup_workout_data');
     if (saved) {
@@ -57,6 +64,40 @@ export default function WorkoutSchedule() {
     }
   }, []);
 
+  const saveHistory = (newHistory: any[]) => {
+    setHistory(newHistory);
+    localStorage.setItem('gusup_exercise_history', JSON.stringify(newHistory));
+  };
+
+  const getTodayDateString = () => new Date().toISOString().split('T')[0];
+
+  const logExercise = (exerciseName: string) => {
+    const dateStr = getTodayDateString();
+    let newHistory = history.filter((h: any) => h.date !== dateStr);
+    newHistory.push({ date: dateStr, exercise: exerciseName });
+    newHistory.sort((a: any, b: any) => b.date.localeCompare(a.date));
+    saveHistory(newHistory);
+  };
+
+  const removeExerciseLog = (dateStr: string) => {
+    const newHistory = history.filter((h: any) => h.date !== dateStr);
+    saveHistory(newHistory);
+  };
+
+  const saveCustomExercise = () => {
+    if (customExercise.trim()) {
+      logExercise(customExercise.trim());
+      setIsEditing(false);
+      
+      const newData = { ...data };
+      const ex = newData.workout.exercises.find((e: any) => e.name === todayName);
+      if (ex && !ex.done) {
+        ex.done = true;
+        updateData(newData);
+      }
+    }
+  };
+
   const updateData = (newData: any) => {
     setData(newData);
     localStorage.setItem('gusup_workout_data', JSON.stringify(newData));
@@ -68,6 +109,14 @@ export default function WorkoutSchedule() {
     if (ex) {
       ex.done = !ex.done;
       updateData(newData);
+      
+      if (ex.name === todayName) {
+        if (ex.done) {
+          logExercise(ex.title);
+        } else {
+          removeExerciseLog(getTodayDateString());
+        }
+      }
     }
   };
 
@@ -128,13 +177,46 @@ export default function WorkoutSchedule() {
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                <button 
-                  onClick={() => toggleExercise(todayWorkout.id)}
-                  className={`flex-1 font-bold py-3 px-4 rounded-lg transition-colors text-white ${todayWorkout.done ? 'bg-gray-600 hover:bg-gray-500' : 'bg-green-600 hover:bg-green-500'}`}
-                >
-                  {todayWorkout.done ? '✓ Completed' : 'Mark Workout Complete'}
-                </button>
+              <div className="mt-6 space-y-3">
+                {isEditing ? (
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input 
+                      type="text" 
+                      value={customExercise} 
+                      onChange={(e) => setCustomExercise(e.target.value)} 
+                      placeholder="e.g. 5k run, swam 30 mins"
+                      className="flex-1 bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                      autoFocus
+                    />
+                    <button 
+                      onClick={saveCustomExercise}
+                      className="font-bold py-3 px-6 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+                    >
+                      Save
+                    </button>
+                    <button 
+                      onClick={() => setIsEditing(false)}
+                      className="font-bold py-3 px-4 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button 
+                      onClick={() => toggleExercise(todayWorkout.id)}
+                      className={`flex-1 font-bold py-3 px-4 rounded-lg transition-colors text-white ${todayWorkout.done ? 'bg-gray-600 hover:bg-gray-500' : 'bg-green-600 hover:bg-green-500'}`}
+                    >
+                      {todayWorkout.done ? '✓ Completed' : 'Mark Workout Complete'}
+                    </button>
+                    <button 
+                      onClick={() => setIsEditing(true)}
+                      className="font-bold py-3 px-4 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors sm:w-24 text-sm"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -149,6 +231,31 @@ export default function WorkoutSchedule() {
           >
             {showFullWeek ? 'Hide This Week\'s Schedule' : 'View This Week\'s Schedule'}
           </button>
+          
+          <button 
+            onClick={() => setShowExerciseLog(!showExerciseLog)}
+            className="w-full text-center text-gray-400 hover:text-gray-300 text-sm font-medium transition-colors mt-2 block"
+          >
+            {showExerciseLog ? 'Hide Exercise Log' : 'Exercise Log'}
+          </button>
+
+          {showExerciseLog && (
+            <div className="mt-4 bg-gray-900 rounded-lg p-4 border border-gray-700">
+              <h3 className="text-lg font-bold text-white mb-3">Workout History</h3>
+              {history.length > 0 ? (
+                <div className="space-y-2">
+                  {history.map((entry: any, i: number) => (
+                    <div key={i} className="flex justify-between items-center py-2 border-b border-gray-800 last:border-0">
+                      <span className="text-gray-400 text-sm">{entry.date}</span>
+                      <span className="text-white font-medium text-right ml-4">{entry.exercise}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm italic">No exercises logged yet.</p>
+              )}
+            </div>
+          )}
           
           {showFullWeek && (
             <div className="mt-4 space-y-3">
